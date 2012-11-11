@@ -71,6 +71,16 @@ void append (char * file1, char * file2) {
 	write_file(out,file2);
 
 }
+
+void prepend(char * file1,char * file2) {
+
+	createNewOutputFile(file1,file2,".test.txt");
+	char  s[] = "rm ";	
+	system(strcat(s,file2));
+	char t[] = "mv .test.txt ";	
+	system(strcat(t,file2));
+	
+}
 int main(int argc ,char **argv) {
 	
 	int fd1,fd2,out;
@@ -87,6 +97,7 @@ int main(int argc ,char **argv) {
 				createNewOutputFile(argv[1],argv[2],argv[3]);
 			else 
 				if (strcmp(argv[1],argv[3]) == 0) append(argv[1],argv[2]);
+				else prepend(argv[1],argv[2]);
 		}	
 	
 	}
