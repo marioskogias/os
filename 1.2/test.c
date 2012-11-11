@@ -43,34 +43,6 @@ void write_file(int fd, const char *infile) {
 
 }
 
-void createNewOutputFile(char * file1,char *file2,char * file3) {
-	char * filename;
-	if (file3 == NULL) 
-		filename = "fconc.out";
-	else 
-		filename = file3;
-	int out = open(filename,O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR);	
-	if (out<0) {
-		perror("Can't create output file");
-		exit(1);	
-	}		
-		
-	write_file(out,file1);
-	write_file(out,file2);
-		
-	close(out);
-
-}
-
-void append (char * file1, char * file2) {
-	int out = open(file1,O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR);	
-	if (out<0) {
-		perror("Can't create output file");
-		exit(1);	
-	}		
-	write_file(out,file2);
-
-}
 int main(int argc ,char **argv) {
 	
 	int fd1,fd2,out;
@@ -81,13 +53,15 @@ int main(int argc ,char **argv) {
 		printf("Usage: ./fconc infile1 infile2 [outfile (default:fconc.out)]\n");
 	} else {
 		
-		if (argc ==3) createNewOutputFile(argv[1],argv[2],NULL); 
-		else {
-			if ((strcmp(argv[1],argv[3]) != 0) && (strcmp(argv[2],argv[3]) != 0))
-				createNewOutputFile(argv[1],argv[2],argv[3]);
-			else 
-				if (strcmp(argv[1],argv[3]) == 0) append(argv[1],argv[2]);
-		}	
+		out = open(argv[2], O_WRONLY, S_IRUSR | S_IWUSR);	 // me append sto telos
+		if (out<0) {
+		perror("Can't create output file");
+		exit(1);	
+		}		
+		
+		write_file(out,argv[1]);
+				
+		close(out);
 	
 	}
 	return 0;
