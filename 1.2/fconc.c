@@ -6,10 +6,10 @@
 #include <sys/stat.h>
 
 
-#define BUF_SIZE 256
+#define BUF_SIZE 8
 
 void doWrite(int fd, const char *buff, int len) {
-	
+
 	if (write(fd, buff, len) != len) {
 		perror("couldn't write whole buffer");
 		exit(1);
@@ -18,10 +18,12 @@ void doWrite(int fd, const char *buff, int len) {
 }
 
 int doRead(int fd,char * buf,int len) {
-	if (read(fd, buf, len) < 0) {
+	int r = read(fd,buf,len);
+	if (r < 0) {
 		perror("Problem with reading");
 		exit(1);
 	}
+	return r;
 
 
 }
