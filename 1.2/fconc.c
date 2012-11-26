@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#include<string.h>
+#include <string.h>
 #include <sys/stat.h>
 
 
@@ -73,12 +73,15 @@ void append (char * file1, char * file2) {
 }
 
 void prepend(char * file1,char * file2) {
-
-	createNewOutputFile(file1,file2,".test.txt");
-	char  s[] = "rm ";	
-	system(strcat(s,file2));
-	char t[] = "mv .test.txt ";	
-	system(strcat(t,file2));
+	char * name = tmpnam(NULL);
+	createNewOutputFile(file1,file2,name);
+	unlink(file2);
+//	char  s[] = "rm ";	
+//	system(strcat(s,file2));
+//	char t[] = "mv .test.txt ";	
+//	system(strcat(t,file2));
+	link(name,file2);
+	unlink(name);
 	
 }
 int main(int argc ,char **argv) {
