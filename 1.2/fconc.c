@@ -9,28 +9,18 @@
 #define BUF_SIZE 512
 
 void doWrite(int fd, const char *buff, int len) {
-/*	int written = write(fd,buff,len);
-	if (written != len) doWrite(fd+written,buff+written,len-written);
-*/
-	if (write(fd, buff, len) != len) {
+	int written = write(fd,buff,len);
+	if (written != len) doWrite(fd,buff+written-1,len-written);
+
+	/*if (write(fd, buff, len) != len) {
                 perror("couldn't write whole buffer");
                 exit(1);
-        }
+        }*/
 
 	
 }
 
 int doRead(int fd,char * buf,int len) {
-/*	printf("%d\n",fd);	
-	int r = read(fd,buf,len);
-	printf("do read : r = %d and fd = %d\n",r,fd);
-	if (r<0) {
-		perror("doRead");
-		exit(1);
-	}
-	 if ((r<len) && (r>0)) doRead(fd,buf+r,len-r);
-	return r
-*/
 	int r,total=0;
 	while (len>0) {
 		r=read(fd,buf,len);
