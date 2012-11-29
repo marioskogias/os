@@ -6,24 +6,43 @@
 #include <sys/stat.h>
 
 
-#define BUF_SIZE 8
+#define BUF_SIZE 512
 
 void doWrite(int fd, const char *buff, int len) {
-
+/*	int written = write(fd,buff,len);
+	if (written != len) doWrite(fd+written,buff+written,len-written);
+*/
 	if (write(fd, buff, len) != len) {
-		perror("couldn't write whole buffer");
-		exit(1);
-	}
+                perror("couldn't write whole buffer");
+                exit(1);
+        }
 
+	
 }
 
 int doRead(int fd,char * buf,int len) {
+/*	printf("%d\n",fd);	
 	int r = read(fd,buf,len);
-	if (r < 0) {
-		perror("Problem with reading");
+	printf("do read : r = %d and fd = %d\n",r,fd);
+	if (r<0) {
+		perror("doRead");
 		exit(1);
 	}
-	return r;
+	 if ((r<len) && (r>0)) doRead(fd,buf+r,len-r);
+	return r
+*/
+	int r,total=0;
+	while (len>0) {
+		r=read(fd,buf,len);
+		printf("called read\n");
+		if (r==0) return total;
+		printf("r =  %d\n",r);
+		total = total + r;
+		buf=buf+r-1;
+		len = len -r;	
+	}
+
+	return total;
 
 
 }
@@ -36,11 +55,14 @@ void write_file(int fd, const char *infile) {
 		perror(infile);
 		exit(1);	
 	}
+	
+	
 	while ((r = doRead(inf,buf,BUF_SIZE))>0) {
+		printf("from write file r = %d\n",r);
 		doWrite(fd,buf,r);
+		printf("just write\n");
 	}
 
-	close(inf);
 		
 
 }
@@ -75,16 +97,14 @@ void append (char * file1, char * file2) {
 }
 
 void prepend(char * file1,char * file2) {
+//	char * pattern = "preXXXXXX";
+//	char * name = mktemp(pattern);
 	char * name = tmpnam(NULL);
 	createNewOutputFile(file1,file2,name);
 	unlink(file2);
-//	char  s[] = "rm ";	
-//	system(strcat(s,file2));
-//	char t[] = "mv .test.txt ";	
-//	system(strcat(t,file2));
 	link(name,file2);
 	unlink(name);
-	
+
 }
 int main(int argc ,char **argv) {
 	
