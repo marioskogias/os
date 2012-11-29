@@ -12,21 +12,13 @@ void doWrite(int fd, const char *buff, int len) {
 	int written = write(fd,buff,len);
 	if (written != len) doWrite(fd,buff+written-1,len-written);
 
-	/*if (write(fd, buff, len) != len) {
-                perror("couldn't write whole buffer");
-                exit(1);
-        }*/
-
-	
 }
 
 int doRead(int fd,char * buf,int len) {
 	int r,total=0;
 	while (len>0) {
 		r=read(fd,buf,len);
-		printf("called read\n");
 		if (r==0) return total;
-		printf("r =  %d\n",r);
 		total = total + r;
 		buf=buf+r-1;
 		len = len -r;	
@@ -48,9 +40,7 @@ void write_file(int fd, const char *infile) {
 	
 	
 	while ((r = doRead(inf,buf,BUF_SIZE))>0) {
-		printf("from write file r = %d\n",r);
 		doWrite(fd,buf,r);
-		printf("just write\n");
 	}
 
 		
@@ -87,8 +77,6 @@ void append (char * file1, char * file2) {
 }
 
 void prepend(char * file1,char * file2) {
-//	char * pattern = "preXXXXXX";
-//	char * name = mktemp(pattern);
 	char * name = tmpnam(NULL);
 	createNewOutputFile(file1,file2,name);
 	unlink(file2);
