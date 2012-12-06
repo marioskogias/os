@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <string.h>
 
 #include "proc-common.h"
 
@@ -15,20 +16,23 @@
  * A-+-B---D
  *   `-C
  */
-void fork_procs(void)
+void fork_procs(char * name,int sleep_time)
 {
 	/*
 	 * initial process is A.
 	 */
 
-	change_pname("A");
-	printf("A: Sleeping...\n");
-	sleep(SLEEP_PROC_SEC);
+	change_pname(name);
+	printf("%s: Sleeping...\n",name);
+	sleep(sleep_time);
 
 	/* ... */
 
-	printf("A: Exiting...\n");
-	exit(16);
+	printf("%s: Exiting...\n",name);
+	if (strcmp(name,"B"))
+		exit(19); 
+	else if (strcmp(name,"C"))
+		exit(17);
 }
 
 /*
@@ -50,16 +54,48 @@ int main(void)
 
 	/* Fork root of process tree */
 	pid = fork();
+	
 	if (pid < 0) {
 		perror("main: fork");
 		exit(1);
 	}
 	if (pid == 0) {
-		/* Child */
-		fork_procs();
-		exit(1);
+		/* Child A*/
+		pid = fork();
+		if (pid < 0) {
+			perror("main: fork");
+			exit(1);
+		}
+		if (pid == 0) {
+		/* Child B*/
+			fork_procs("B",5);
+			exit(1);
+		}
+		
+		pid = fork();
+		if (pid < 0) {
+			perror("main: fork");
+			exit(1);
+		}
+		if (pid == 0) {
+		/* Child C*/
+			fork_procs("C",5);
+			exit(1);
+		}	
+		//fork_procs("A",2);
+		
+		change_pname("A");
+		pid = wait(&status);
+		explain_wait_status(pid, status);
+		pid = wait(&status);
+		explain_wait_status(pid, status);
+		
+		
+		exit(16);
 	}
+	
 
+	
 	/*
 	 * Father
 	 */
@@ -70,13 +106,16 @@ int main(void)
 	sleep(SLEEP_TREE_SEC);
 
 	/* Print the process tree root at pid */
+	
+	
 	show_pstree(pid);
+		
 	/* for ask2-signals */
 	/* kill(pid, SIGCONT); */
 
 	/* Wait for the root of the process tree to terminate */
 	pid = wait(&status);
 	explain_wait_status(pid, status);
-
+	
 	return 0;
 }
