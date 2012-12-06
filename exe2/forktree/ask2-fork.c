@@ -29,9 +29,9 @@ void fork_procs(char * name,int sleep_time)
 	/* ... */
 
 	printf("%s: Exiting...\n",name);
-	if (strcmp(name,"B"))
-		exit(19); 
-	else if (strcmp(name,"C"))
+	if (strcmp(name,"D") == 0)
+		exit(13); 
+	else if (strcmp(name,"C") == 0)
 		exit(17);
 }
 
@@ -67,9 +67,23 @@ int main(void)
 			exit(1);
 		}
 		if (pid == 0) {
-		/* Child B*/
-			fork_procs("B",5);
-			exit(1);
+			/* Child B*/
+			//fork_procs("B",5);
+			
+			pid = fork();
+			if (pid < 0) {
+				perror("main: fork");
+				exit(1);
+			}
+			if (pid == 0) {
+				fork_procs("D",5);
+				exit(1);
+			}
+			change_pname("B");
+			pid = wait(&status);
+			explain_wait_status(pid, status);
+
+			exit(19);
 		}
 		
 		pid = fork();
