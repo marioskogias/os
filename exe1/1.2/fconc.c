@@ -10,7 +10,11 @@
 
 void doWrite(int fd, const char *buff, int len) {
 	int written = write(fd,buff,len);
-	if (written != len) doWrite(fd,buff+written-1,len-written);
+	if (written == -1) {
+		perror("problem with writing");
+		exit(1);
+	}
+	if (written != len) doWrite(fd,buff+written,len-written);
 
 }
 
@@ -18,9 +22,13 @@ int doRead(int fd,char * buf,int len) {
 	int r,total=0;
 	while (len>0) {
 		r=read(fd,buf,len);
+		if (r==-1) {
+			perror("problem with reading");
+			exit(1);
+		}
 		if (r==0) return total;
 		total = total + r;
-		buf=buf+r-1;
+		buf=buf+r;
 		len = len -r;	
 	}
 
@@ -61,7 +69,7 @@ void createNewOutputFile(char * file1,char *file2,char * file3) {
 		
 	write_file(out,file1);
 	write_file(out,file2);
-		
+	getchar();
 	close(out);
 
 }
