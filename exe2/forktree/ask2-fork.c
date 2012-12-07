@@ -61,6 +61,7 @@ int main(void)
 	}
 	if (pid == 0) {
 		/* Child A*/
+		printf("Process A started from main\n");
 		pid = fork();
 		if (pid < 0) {
 			perror("main: fork");
@@ -69,17 +70,19 @@ int main(void)
 		if (pid == 0) {
 			/* Child B*/
 			//fork_procs("B",5);
-			
+			printf("Process A started process B\n");
 			pid = fork();
 			if (pid < 0) {
 				perror("main: fork");
 				exit(1);
 			}
 			if (pid == 0) {
+				printf("Process B started process D\n");
 				fork_procs("D",5);
 				exit(1);
 			}
 			change_pname("B");
+			//printf("Process B is waiting D for completion\n");
 			pid = wait(&status);
 			explain_wait_status(pid, status);
 
@@ -93,12 +96,14 @@ int main(void)
 		}
 		if (pid == 0) {
 		/* Child C*/
+			printf("Process A started process C\n");
 			fork_procs("C",5);
 			exit(1);
 		}	
 		//fork_procs("A",2);
 		
 		change_pname("A");
+		//printf("Process A is waiting B and C for completion\n");
 		pid = wait(&status);
 		explain_wait_status(pid, status);
 		pid = wait(&status);
@@ -128,6 +133,7 @@ int main(void)
 	/* kill(pid, SIGCONT); */
 
 	/* Wait for the root of the process tree to terminate */
+	//printf("Main is waiting A for completion\n");	
 	pid = wait(&status);
 	explain_wait_status(pid, status);
 	
