@@ -74,6 +74,8 @@ void createTree(struct tree_node * root,pid_t *pid,int * status) {
 			explain_wait_status(*pids,*status);
 			pids++;
 		}
+		pids = pids - root->nr_children;
+		free(pids);
 
 		}
 		exit(0);
