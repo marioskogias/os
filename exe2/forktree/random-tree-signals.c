@@ -5,24 +5,36 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <signal.h>
 
 #include "tree.h"
 #include "proc-common.h"
 
-void fork_procs(char * name,int sleep_time)
+void fork_procs(struct tree_node * root)
 {
-	/*
-	 * initial process is A.
-	 */
+	 /*
+         * Start
+         */
+        printf("PID = %ld, name %s, starting...\n",
+                        (long)getpid(), root->name);
+        change_pname(root->name);
 
-	change_pname(name);
-	printf("%s: Sleeping...\n",name);
-	sleep(sleep_time);
+        /* ... */
 
-	/* ... */
+        /*
+         * Suspend Self
+         */
+        raise(SIGSTOP);
+        printf("PID = %ld, name = %s is awake\n",
+                (long)getpid(), root->name);
 
-	printf("%s: Exiting...\n",name);
-	exit(1);
+        /* ... */
+
+        /*
+         * Exit
+         */
+        exit(0);
+
 }
 
 
@@ -30,9 +42,11 @@ void fork_procs(char * name,int sleep_time)
 void createTree(struct tree_node * root,pid_t *pid,int * status) {
 	
 	if (root->children == NULL)
-		fork_procs(root->name,5);
+		fork_procs(root);
 	else {
 		int i;
+		printf("PID = %ld, name %s, starting...\n",
+                        (long)getpid(), root->name);
 		change_pname(root->name);
 		for (i=0;i<root->nr_children;i++) {
 			*pid = fork();
@@ -45,10 +59,15 @@ void createTree(struct tree_node * root,pid_t *pid,int * status) {
 				exit(1);
 			}
 		}
-		for (i=0;i<root->nr_children;i++) {	 // get the status		
+/*		for (i=0;i<root->nr_children;i++) {	 // get the status		
 			*pid = wait(status);
 			explain_wait_status(*pid,*status);				
-		}
+		}*/
+		wait_for_ready_children(root->nr_children);
+		raise(SIGSTOP);
+		printf("PID = %ld, name = %s is awake\n",
+                (long)getpid(), root->name);
+
 	} 
 		
 }
@@ -80,10 +99,11 @@ int main(int argc, char *argv[]) {
 		
 	
 	
-	sleep(3);	
 	
+	wait_for_ready_children(1);
 	show_pstree(pid);
 	
+	kill(pid,SIGCONT);
 	pid = wait(&status);
 	explain_wait_status(pid, status);
 
