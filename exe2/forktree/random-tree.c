@@ -75,30 +75,8 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 	if (pid == 0) {
-		
-		if (root->nr_children == 0) {
-			fork_procs(root->name,5);
-			exit(1);
-		}		
-		else {	
-			change_pname(root->name);
-			for (i=0;i<root->nr_children;i++) {		
-				pid = fork();
-				if (pid == -1) {
-					perror("main: fork");
-					exit(1);
-				}
-				if (pid == 0) {
-					createTree(root->children+i,&pid,&status);	
-					exit(1);
-				}
-			}
-			for (i=0;i<root->nr_children;i++) {
-				pid = wait(&status);
-				explain_wait_status(pid, status);
-			}
-		}
-		exit(1);
+		createTree(root,&pid,&status);
+		exit(1);		
 	}
 		
 	
