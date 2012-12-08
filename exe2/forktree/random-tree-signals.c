@@ -45,6 +45,7 @@ void createTree(struct tree_node * root,pid_t *pid,int * status) {
 		fork_procs(root);
 	else {
 		int i;
+		pid_t * pids = malloc(root->nr_children*(sizeof(pid_t)));
 		printf("PID = %ld, name %s, starting...\n",
                         (long)getpid(), root->name);
 		change_pname(root->name);
@@ -56,21 +57,28 @@ void createTree(struct tree_node * root,pid_t *pid,int * status) {
 			}
 			if (*pid == 0) {
 				createTree(root->children+i,pid,status);
-				exit(1);
+				exit(0);
 			}
+			*pids = *pid;
+			pids++;	
 		}
-/*		for (i=0;i<root->nr_children;i++) {	 // get the status		
-			*pid = wait(status);
-			explain_wait_status(*pid,*status);				
-		}*/
 		wait_for_ready_children(root->nr_children);
+		printf("Process %s is stopped\n",root->name);
 		raise(SIGSTOP);
 		printf("PID = %ld, name = %s is awake\n",
-                (long)getpid(), root->name);
+              	 (long)getpid(), root->name);
+		pids= pids - root->nr_children;
+		for (i=0;i<root->nr_children;i++) {
+			kill(*pids,SIGCONT);	
+			wait(status);
+			explain_wait_status(*pids,*status);
+			pids++;
+		}
 
-	} 
+		}
+		exit(0);
+} 
 		
-}
 
 int main(int argc, char *argv[]) {
 
