@@ -1,10 +1,13 @@
 .PHONY: all clean
 
-all: fork-example tree-example ask2-fork ask2-signals random-tree random-tree-signals
+all: fork-example tree-example ask2-fork ask2-signals random-tree random-tree-signals random-tree-pipes
 
 CC = gcc
 CFLAGS = -g -Wall -O2
 SHELL= /bin/bash
+
+random-tree-pipes: random-tree-pipes.o proc-common.o tree.o
+	$(CC) $(CFLAGS) $^ -o $@	
 
 random-tree-signals: random-tree-signals.o proc-common.o tree.o
 	$(CC) $(CFLAGS) $^ -o $@
@@ -34,4 +37,4 @@ ask2-signals: ask2-signals.o proc-common.o tree.o
 	gcc -Wall -E $< | indent -kr > $@
 
 clean: 
-	rm -f *.o tree-example fork-example pstree-this ask2-{fork,tree,signals,pipes} random-tree random-tree-signals
+	rm -f *.o tree-example fork-example pstree-this ask2-{fork,tree,signals,pipes} random-tree random-tree-signals random-tree-pipes
