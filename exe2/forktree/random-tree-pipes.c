@@ -12,7 +12,7 @@
 
 int compute(char * action,int * pipe) {
 	int val1,val2;
-
+	
         printf("Child: My PID is %ld. Receiving two ints from the parent.\n",
                 (long)getpid());
         if (read(pipe[0], &val1, sizeof(val1)) != sizeof(val1)) {
@@ -24,7 +24,8 @@ int compute(char * action,int * pipe) {
                 exit(1);
         }
         printf("Child: received values %d %d from the pipe. Will now compute.\n", val1,val2);
-        int res;
+	
+	int res;
 
 	if (strcmp(action,"*")== 0) {
 		res = val1*val2;
@@ -37,12 +38,11 @@ int compute(char * action,int * pipe) {
 	printf("from compute the result is %d\n",res);
 	
 	
-	if (write(pipe[1], &res, sizeof(res) != sizeof(res))) {
+	if (write(pipe[1], &res, sizeof(res)) != sizeof(res)) {
                 perror("parent: write to pipe");
                 exit(1);
         }
 	printf("wrote to pipe %d\n", res);	
-	
         return res;
 
 
@@ -63,10 +63,16 @@ void fork_procs(struct tree_node * root,int * pipe)
          * Suspend Self
          */
 	int val = atoi(root->name);
+
+	raise(SIGSTOP);
+        printf("PID = %ld, name = %s is awake\n",
+                (long)getpid(), root->name);
+
 	if (write(pipe[1], &val, sizeof(val)) != sizeof(val)) {
       		perror("leaf: write to pipe");
                 exit(1);
         }
+
 	printf("wrote to pipe %d\n",val);
 //	sleep(2);
 
@@ -80,6 +86,11 @@ void fork_procs(struct tree_node * root,int * pipe)
 }
 
 
+struct childPids {
+
+	pid_t pid;
+	int childNo;
+};
 
 void createTree(struct tree_node * root,pid_t *pid,int * status,int * pipe) {
 	
@@ -87,23 +98,49 @@ void createTree(struct tree_node * root,pid_t *pid,int * status,int * pipe) {
 		fork_procs(root,pipe);
 	else {
 		int i;
-		change_pname(root->name);
-		for (i=0;i<root->nr_children;i++) {
-			*pid = fork();
-			if (*pid == -1) {
-				perror("createTree: fork");
-				exit(1);
-			}
-			if (*pid == 0) {
-				createTree(root->children+i,pid,status,pipe);
-				exit(0);
-			}
+                struct childPids * children = malloc(root->nr_children*(sizeof(struct childPids)));
+              
+		printf("PID = %ld, name %s, starting...\n",
+                        (long)getpid(), root->name);
+                change_pname(root->name);
+                for (i=0;i<root->nr_children;i++) {
+                        *pid = fork();
+                        if (*pid == -1) {
+                                perror("createTree: fork");
+                                exit(1);
+                        }
+                        if (*pid == 0) {
+                                createTree(root->children+i,pid,status,pipe);
+                                exit(0);
+                        }
+                        children[i].pid = *pid;
+			children[i].childNo = (root->children+i)->nr_children;
+                        
+                }
+                wait_for_ready_children(root->nr_children);
+                printf("Process %s is stopped\n",root->name);
+                raise(SIGSTOP);
+                printf("PID = %ld, name = %s is awake\n",
+                 (long)getpid(), root->name);
+               
+		pid_t pid1,pid2;
+		pid1 = children[0].pid;
+		pid2 = children[1].pid;
+		if (children[0].childNo == 0) {
+			pid1 = children[1].pid;
+			pid2 = children[0].pid;
 		}
-		for (i=0;i<root->nr_children;i++) {
-			 *pid = wait(status);
-                        explain_wait_status(*pid,*status);	
-		}		
-		
+
+                kill(pid1,SIGCONT);    
+                wait(status);
+                explain_wait_status(pid1,*status);
+              
+		kill(pid2,SIGCONT);    
+                wait(status);
+                explain_wait_status(pid2,*status);
+  
+               
+                free(children);
 		compute(root->name,pipe);
 		exit(1);
 		
@@ -124,12 +161,15 @@ int main(int argc, char *argv[]) {
 	}
 
 	root = get_tree_from_file(argv[1]);
+
 	int mypipe[2];
-		
 	 if (pipe(mypipe) < 0) {
                 perror("pipe");
                 exit(1);
         }
+	
+	
+	
 
 
 	pid = fork();
@@ -147,12 +187,15 @@ int main(int argc, char *argv[]) {
 	}
 		
 	
+
+
+	wait_for_ready_children(1);
+        show_pstree(pid);
+        kill(pid,SIGCONT);
+        pid = wait(&status);
+        explain_wait_status(pid, status);	
 	
 	
-	show_pstree(pid);
-	
-	pid = wait(&status);
-	explain_wait_status(pid, status);
 	printf("wait to read\n");	
 	int result;
 	if (read(mypipe[0], &result, sizeof(result)) != sizeof(result)) {
