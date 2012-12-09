@@ -34,4 +34,4 @@ ask2-signals: ask2-signals.o proc-common.o tree.o
 	gcc -Wall -E $< | indent -kr > $@
 
 clean: 
-	rm -f *.o tree-example fork-example pstree-this ask2-{fork,tree,signals,pipes} random-tree
+	rm -f *.o tree-example fork-example pstree-this ask2-{fork,tree,signals,pipes} random-tree random-tree-signals

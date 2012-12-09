@@ -10,6 +10,22 @@
 #include "tree.h"
 #include "proc-common.h"
 
+void compute(char * action,int * pipe) {
+	int val1,val2;
+
+        printf("Child: My PID is %ld. Receiving two ints from the parent.\n",
+                (long)getpid());
+        if (read(fd, &val, sizeof(val)) != sizeof(val)) {
+                perror("child: read from pipe");
+                exit(1);
+        }
+        printf("Child: received value %f from the pipe. Will now compute.\n", val);
+        compute(1000);
+        exit(7);
+
+
+}
+
 void fork_procs(struct tree_node * root)
 {
 	 /*
@@ -104,8 +120,14 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 	if (pid == 0) {
+		int mypipe[2];
+		if (pipe (mypipe)) {
+        	   perror ("Pipe failed.\n");
+           	   exit(1);
+        	 }
 		createTree(root,&pid,&status);
-		exit(1);		
+		exit(compute(root->name,mypipe));
+			
 	}
 		
 	
@@ -116,7 +138,8 @@ int main(int argc, char *argv[]) {
 	
 	kill(pid,SIGCONT);
 	pid = wait(&status);
-	explain_wait_status(pid, status);
+	//explain_wait_status(pid, status);
+	printf("The result is = %d\n",status);
 
 
 	return 0;
