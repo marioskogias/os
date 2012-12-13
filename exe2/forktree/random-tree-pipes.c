@@ -110,7 +110,7 @@ void createTree(struct tree_node * root,pid_t *pid,int * status,int * pipe) {
                                 exit(1);
                         }
                         if (*pid == 0) {
-                                createTree(root->children+i,pid,status,pipe);
+				createTree(root->children+i,pid,status,pipe);
                                 exit(0);
                         }
                         children[i].pid = *pid;

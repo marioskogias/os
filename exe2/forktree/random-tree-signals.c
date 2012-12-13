@@ -47,6 +47,7 @@ void createTree(struct tree_node * root,pid_t *pid,int * status) {
 	else {
 		int i;
 		pid_t * pids = malloc(root->nr_children*(sizeof(pid_t)));
+		printf("pids: %s, %lx\n",root->name, pids);
 		printf("PID = %ld, name %s, starting...\n",
                         (long)getpid(), root->name);
 		change_pname(root->name);
@@ -57,6 +58,8 @@ void createTree(struct tree_node * root,pid_t *pid,int * status) {
 				exit(1);
 			}
 			if (*pid == 0) {
+				printf("pids2: %s %lx\n", (root->children + i)->name, pids);
+				free(pids-i);
 				createTree(root->children+i,pid,status);
 				exit(0);
 			}
