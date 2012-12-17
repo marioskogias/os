@@ -28,7 +28,7 @@ void fork_procs(char * name,int sleep_time)
 
 
 void createTree(struct tree_node * root,pid_t *pid,int * status) {
-	
+	printf("process %s started\n",root->name);	
 	if (root->children == NULL)
 		fork_procs(root->name,5);
 	else {
@@ -51,6 +51,7 @@ void createTree(struct tree_node * root,pid_t *pid,int * status) {
 		}
 	} 
 		
+	printf("%s: Exiting...\n",root->name);
 }
 
 int main(int argc, char *argv[]) {

@@ -13,8 +13,8 @@
 int compute(char * action,int * pipe) {
 	int val1,val2;
 	
-        printf("Child: My PID is %ld. Receiving two ints from the parent.\n",
-                (long)getpid());
+        //printf("Child: My PID is %ld. Receiving two ints from the parent.\n",
+               // (long)getpid());
         if (read(pipe[0], &val1, sizeof(val1)) != sizeof(val1)) {
                 perror("child: read from pipe");
                 exit(1);
@@ -23,19 +23,19 @@ int compute(char * action,int * pipe) {
                 perror("child: read from pipe");
                 exit(1);
         }
-        printf("Child: received values %d %d from the pipe. Will now compute.\n", val1,val2);
+       // printf("Child: received values %d %d from the pipe. Will now compute.\n", val1,val2);
 	
 	int res;
 
 	if (strcmp(action,"*")== 0) {
 		res = val1*val2;
-		printf("pollaplasiasmos\n");
+	//	printf("pollaplasiasmos\n");
 	} else if (strcmp(action,"+")==0) {
-		printf("prosthesh\n");
+	//	printf("prosthesh\n");
 		res = val1+val2;
 	}
 	
-	printf("from compute the result is %d\n",res);
+//	printf("from compute the result is %d\n",res);
 	
 	
 	if (write(pipe[1], &res, sizeof(res)) != sizeof(res)) {
@@ -43,7 +43,7 @@ int compute(char * action,int * pipe) {
                 exit(1);
         }
 	
-	printf("wrote to pipe %d\n", res);	
+//	printf("wrote to pipe %d\n", res);	
         return res;
 
 
@@ -74,8 +74,6 @@ void fork_procs(struct tree_node * root,int * pipe)
                 exit(1);
         }
 
-	printf("wrote to pipe %d\n",val);
-//	sleep(2);
 
         /* ... */
 
@@ -186,7 +184,6 @@ int main(int argc, char *argv[]) {
 	}
 	if (pid == 0) {
 		createTree(root,&pid,&status,mypipe);
-//		compute(root->name,mypipe);
 		exit(1);
 	}
 		
@@ -200,7 +197,6 @@ int main(int argc, char *argv[]) {
         explain_wait_status(pid, status);	
 	
 	
-	printf("wait to read\n");	
 	int result;
 	if (read(mypipe[0], &result, sizeof(result)) != sizeof(result)) {
                 perror("child: read from pipe");
