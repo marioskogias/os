@@ -42,6 +42,7 @@ int compute(char * action,int * pipe) {
                 perror("parent: write to pipe");
                 exit(1);
         }
+	
 	printf("wrote to pipe %d\n", res);	
         return res;
 
@@ -98,31 +99,34 @@ void createTree(struct tree_node * root,pid_t *pid,int * status,int * pipe) {
 		fork_procs(root,pipe);
 	else {
 		int i;
-                struct childPids * children = malloc(root->nr_children*(sizeof(struct childPids)));
+                struct childPids  *children = malloc(2*sizeof(struct childPids));
               
 		printf("PID = %ld, name %s, starting...\n",
                         (long)getpid(), root->name);
                 change_pname(root->name);
-                for (i=0;i<root->nr_children;i++) {
+                for (i=0;i<2;i++) {
                         *pid = fork();
                         if (*pid == -1) {
                                 perror("createTree: fork");
                                 exit(1);
                         }
                         if (*pid == 0) {
+				free(children-i);
 				createTree(root->children+i,pid,status,pipe);
                                 exit(0);
                         }
-                        children[i].pid = *pid;
-			children[i].childNo = (root->children+i)->nr_children;
-                        
+                        children->pid = *pid;
+			children->childNo = (root->children+i)->nr_children;
+                        children++;
+
                 }
                 wait_for_ready_children(root->nr_children);
                 printf("Process %s is stopped\n",root->name);
                 raise(SIGSTOP);
                 printf("PID = %ld, name = %s is awake\n",
                  (long)getpid(), root->name);
-               
+
+		children = children-2;
 		pid_t pid1,pid2;
 		pid1 = children[0].pid;
 		pid2 = children[1].pid;
@@ -130,8 +134,8 @@ void createTree(struct tree_node * root,pid_t *pid,int * status,int * pipe) {
 			pid1 = children[1].pid;
 			pid2 = children[0].pid;
 		}
-
-                kill(pid1,SIGCONT);    
+                
+		kill(pid1,SIGCONT);    
                 wait(status);
                 explain_wait_status(pid1,*status);
               
