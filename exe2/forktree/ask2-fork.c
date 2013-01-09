@@ -82,8 +82,6 @@ int main(void)
 				exit(1);
 			}
 			change_pname("B");
-			//printf("Process B is waiting D for completion\n");
-			sleep(20);
 			pid = wait(&status);
 			explain_wait_status(pid, status);
 
@@ -101,10 +99,8 @@ int main(void)
 			fork_procs("C",5);
 			exit(1);
 		}	
-		//fork_procs("A",2);
 		
 		change_pname("A");
-		//printf("Process A is waiting B and C for completion\n");
 		pid = wait(&status);
 		explain_wait_status(pid, status);
 		pid = wait(&status);
@@ -122,14 +118,13 @@ int main(void)
 	/* for ask2-signals */
 	/* wait_for_ready_children(1); */
 
-	/* for ask2-{fork, tree} */
 	sleep(SLEEP_TREE_SEC);
 
 	/* Print the process tree root at pid */
 	
 	
 	show_pstree(pid);
-		
+//	show_pstree(getpid());		
 	/* for ask2-signals */
 	/* kill(pid, SIGCONT); */
 

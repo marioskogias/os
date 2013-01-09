@@ -1,0 +1,70 @@
+init-+-NetworkManager-+-dhclient
+     |                `-{NetworkManager}
+     |-3*[VBoxClient---{VBoxClient}]
+     |-VBoxService---6*[{VBoxService}]
+     |-acpid
+     |-atd
+     |-avahi-daemon---avahi-daemon
+     |-bluetoothd
+     |-bonobo-activati---{bonobo-activat}
+     |-console-kit-dae---63*[{console-kit-da}]
+     |-cron
+     |-cupsd
+     |-2*[dbus-daemon]
+     |-dbus-launch
+     |-exim4
+     |-gconfd-2
+     |-gdm3-+-gdm-simple-slav-+-Xorg
+     |      |                 |-gdm-session-wor-+-x-session-manag-+-bluetooth-apple
+     |      |                 |                 |                 |-evolution-alarm
+     |      |                 |                 |                 |-gdu-notificatio
+     |      |                 |                 |                 |-gnome-panel
+     |      |                 |                 |                 |-gnome-power-man
+     |      |                 |                 |                 |-kerneloops-appl
+     |      |                 |                 |                 |-metacity
+     |      |                 |                 |                 |-nautilus
+     |      |                 |                 |                 |-nm-applet
+     |      |                 |                 |                 |-polkit-gnome-au
+     |      |                 |                 |                 |-python
+     |      |                 |                 |                 |-seahorse-agent
+     |      |                 |                 |                 |-ssh-agent
+     |      |                 |                 |                 |-update-notifier
+     |      |                 |                 |                 `-{x-session-mana}
+     |      |                 |                 `-{gdm-session-wo}
+     |      |                 `-{gdm-simple-sla}
+     |      `-{gdm3}
+     |-6*[getty]
+     |-gnome-keyring-d---2*[{gnome-keyring-}]
+     |-gnome-screensav
+     |-gnome-settings-
+     |-gnome-terminal-+-bash
+     |                |-bash---su---bash---pstree
+     |                |-gnome-pty-helpe
+     |                `-{gnome-terminal}
+     |-gvfs-afc-volume---{gvfs-afc-volum}
+     |-gvfs-gdu-volume
+     |-gvfs-gphoto2-vo
+     |-gvfsd
+     |-gvfsd-burn
+     |-gvfsd-metadata
+     |-gvfsd-trash
+     |-inetd
+     |-kerneloops
+     |-mixer_applet2---{mixer_applet2}
+     |-modem-manager
+     |-nmbd
+     |-notification-da
+     |-polkit-gnome-au
+     |-polkitd
+     |-portmap
+     |-postgres---4*[postgres]
+     |-rpc.mountd
+     |-rpc.statd
+     |-rsyslogd---2*[{rsyslogd}]
+     |-smbd---smbd
+     |-sshd
+     |-udevd---2*[udevd]
+     |-udisks-daemon---udisks-daemon
+     |-upowerd
+     |-winbindd---3*[winbindd]
+     `-wpa_supplicant

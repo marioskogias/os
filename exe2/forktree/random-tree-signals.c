@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
 	
 	wait_for_ready_children(1);
 	show_pstree(pid);
-	kill(pid,SIGCONT);
+//	kill(pid,SIGCONT);
 	pid = wait(&status);
 	explain_wait_status(pid, status);
 
