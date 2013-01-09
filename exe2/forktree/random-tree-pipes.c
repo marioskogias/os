@@ -91,29 +91,31 @@ struct childPids {
 	int childNo;
 };
 
-void createTree(struct tree_node * root,pid_t *pid,int * status,int * pipe) {
+void createTree(struct tree_node * root,int * pipe) {
 	
 	if (root->children == NULL)
 		fork_procs(root,pipe);
 	else {
 		int i;
+		int status;
+		pid_t pid;
                 struct childPids  *children = malloc(2*sizeof(struct childPids));
               
 		printf("PID = %ld, name %s, starting...\n",
                         (long)getpid(), root->name);
                 change_pname(root->name);
                 for (i=0;i<2;i++) {
-                        *pid = fork();
-                        if (*pid == -1) {
+                        pid = fork();
+                        if (pid == -1) {
                                 perror("createTree: fork");
                                 exit(1);
                         }
-                        if (*pid == 0) {
+                        if (pid == 0) {
 				free(children-i);
-				createTree(root->children+i,pid,status,pipe);
+				createTree(root->children+i,pipe);
                                 exit(0);
                         }
-                        children->pid = *pid;
+                        children->pid = pid;
 			children->childNo = (root->children+i)->nr_children;
                         children++;
 
@@ -134,12 +136,12 @@ void createTree(struct tree_node * root,pid_t *pid,int * status,int * pipe) {
 		}
                 
 		kill(pid1,SIGCONT);    
-                wait(status);
-                explain_wait_status(pid1,*status);
+                wait(&status);
+                explain_wait_status(pid1,status);
               
 		kill(pid2,SIGCONT);    
-                wait(status);
-                explain_wait_status(pid2,*status);
+                wait(&status);
+                explain_wait_status(pid2,status);
   
                
                 free(children);
@@ -183,7 +185,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 	if (pid == 0) {
-		createTree(root,&pid,&status,mypipe);
+		createTree(root,mypipe);
 		exit(1);
 	}
 		

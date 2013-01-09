@@ -27,27 +27,30 @@ void fork_procs(char * name,int sleep_time)
 
 
 
-void createTree(struct tree_node * root,pid_t *pid,int * status) {
+void createTree(struct tree_node * root) {
 	printf("process %s started\n",root->name);	
 	if (root->children == NULL)
 		fork_procs(root->name,5);
 	else {
-		int i;
+		int i;	
+		pid_t pid;
+		int status;
 		change_pname(root->name);
 		for (i=0;i<root->nr_children;i++) {
-			*pid = fork();
-			if (*pid == -1) {
+			pid = fork();
+			if (pid == -1) {
 				perror("createTree: fork");
 				exit(1);
 			}
-			if (*pid == 0) {
-				createTree(root->children+i,pid,status);
+			if (pid == 0) {
+				createTree(root->children+i);
 				exit(1);
 			}
 		}
 		for (i=0;i<root->nr_children;i++) {	 // get the status		
-			*pid = wait(status);
-			explain_wait_status(*pid,*status);				
+			pid = wait(&status);
+
+			explain_wait_status(pid,status);				
 		}
 	} 
 		
@@ -75,7 +78,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 	if (pid == 0) {
-		createTree(root,&pid,&status);
+		createTree(root);
 		exit(1);		
 	}
 		

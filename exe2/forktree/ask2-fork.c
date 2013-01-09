@@ -83,6 +83,7 @@ int main(void)
 			}
 			change_pname("B");
 			//printf("Process B is waiting D for completion\n");
+			sleep(20);
 			pid = wait(&status);
 			explain_wait_status(pid, status);
 
