@@ -189,6 +189,7 @@ int main(void)
 	}
 
 	pid = wait(&status);
+	sleep(1);
         explain_wait_status(pid, status);
 
 	pid = wait(&status);
