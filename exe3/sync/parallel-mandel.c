@@ -26,7 +26,7 @@
 /*
  * Output at the terminal is is x_chars wide by y_chars long
 */
-int y_chars = 50;
+int y_chars = 51;
 int x_chars = 90;
 
 /*
@@ -132,7 +132,7 @@ int main(void)
 	int i;
 //	int color_val[x_chars];
 	
-	int color_val[y_chars/3+1][x_chars];
+	int color_val[y_chars/3][x_chars];
 
 	pid = fork();
 	if (pid < 0) {
@@ -213,7 +213,7 @@ int main(void)
        // explain_wait_status(pid, status);
 
 	pid = wait(&status);
-        //explain_wait_status(pid, status);
+       // explain_wait_status(pid, status);
 	
 
 	reset_xterm_color(1);
