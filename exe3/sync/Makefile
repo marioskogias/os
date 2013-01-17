@@ -5,7 +5,7 @@
 CC = gcc
 CFLAGS = -Wall -O2
 
-all: mandel procs-shm pipesem.o pipesem-test parallel-mandel
+all: mandel procs-shm pipesem.o pipesem-test parallel-mandel parallel-mandel1
 
 proc-common.o: proc-common.h proc-common.h
 	$(CC) $(CFLAGS) -c -o proc-common.o proc-common.c
@@ -35,6 +35,13 @@ parallel-mandel.o: mandel-lib.h proc-common.h pipesem.h parallel-mandel.c
 
 parallel-mandel: mandel-lib.o proc-common.o pipesem.o parallel-mandel.o 
 	$(CC) $(CFLAGS) -o parallel-mandel mandel-lib.o parallel-mandel.o proc-common.o pipesem.o
+
+parallel-mandel1.o: mandel-lib.h proc-common.h pipesem.h parallel-mandel1.c
+	$(CC) $(CFLAGS)  -c -o parallel-mandel1.o parallel-mandel1.c
+
+parallel-mandel1: mandel-lib.o proc-common.o pipesem.o parallel-mandel1.o 
+	$(CC) $(CFLAGS) -o parallel-mandel1 mandel-lib.o parallel-mandel1.o proc-common.o pipesem.o
+
 ## Procs-shm
 procs-shm.o: proc-common.h procs-shm.c
 	$(CC) $(CFLAGS) -c -o procs-shm.o procs-shm.c
@@ -43,4 +50,4 @@ procs-shm: proc-common.o procs-shm.o
 	$(CC) $(CFLAGS) -o procs-shm proc-common.o procs-shm.o
 
 clean:
-	rm -f *.o pipesem-test mandel procs-shm parallel-mandel
+	rm -f *.o pipesem-test mandel procs-shm parallel-mandel parallel-mandel1

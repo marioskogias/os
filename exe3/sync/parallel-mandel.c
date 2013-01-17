@@ -129,8 +129,10 @@ int main(void)
 	
 	pid_t pid;
 	int status;
+	int i;
+//	int color_val[x_chars];
 	
-	int color_val[x_chars];
+	int color_val[y_chars/3+1][x_chars];
 
 	pid = fork();
 	if (pid < 0) {
@@ -139,13 +141,18 @@ int main(void)
 	}
 	if (pid == 0) {
 		/*prwth diergasia ypologismou*/
-
-		while(line<y_chars) {
-			compute_mandel_line(line,color_val);	
+		i=0;
+		while (line<y_chars){	
+			compute_mandel_line(line,color_val[i]);	
+			line = line + 3;
+			i++;
+		}
+		i=0;
+		while(i<y_chars/3) {
 			pipesem_wait(&a);
-			output_mandel_line(1,color_val);
+			output_mandel_line(1,color_val[i]);
 			pipesem_signal(&b);
-			line = line + 3;
+			i++;
 		}
 		exit(1);
 	}
@@ -156,14 +163,20 @@ int main(void)
                 perror("main: fork");
                 exit(1);
         }
-	if (pid == 0) {
-		/*deuterh diergasia ypologismou*/
-		while(line<y_chars) {
-			compute_mandel_line(line,color_val);	
+	if (pid == 0) { 
+		/*deuterh diergasia ypologismou*/	
+		i=0;
+		while (line<y_chars){		
+			compute_mandel_line(line,color_val[i]);	
+			line = line + 3;
+			i++;	
+		}
+		i=0;
+		while(i<y_chars/3) {
 			pipesem_wait(&b);
-			output_mandel_line(1,color_val);
+			output_mandel_line(1,color_val[i]);
 			pipesem_signal(&c);
-			line = line + 3;
+			i++;
 		}
 		exit(1);
 	}
@@ -175,36 +188,34 @@ int main(void)
                 perror("main: fork");
                 exit(1);
         }
-	if (pid == 0) {
+	if (pid == 0) { 
 		/*trith diergasia ypologismou*/
-
-		while(line<y_chars) {
-			compute_mandel_line(line,color_val);	
-			pipesem_wait(&c);
-			output_mandel_line(1,color_val);
-			pipesem_signal(&a);
+		i=0;
+		while (line<y_chars){		
+			compute_mandel_line(line,color_val[i]);	
 			line = line + 3;
+			i++;
+		}
+		i=0;
+		while(i<y_chars/3) {
+			pipesem_wait(&c);
+			output_mandel_line(1,color_val[i]);
+			pipesem_signal(&a);
+			i++;
 		}
 		exit(1);
 	}
 
 	pid = wait(&status);
-	sleep(1);
-        explain_wait_status(pid, status);
+       // explain_wait_status(pid, status);
 
 	pid = wait(&status);
-        explain_wait_status(pid, status);
+       // explain_wait_status(pid, status);
 
 	pid = wait(&status);
-        explain_wait_status(pid, status);
+        //explain_wait_status(pid, status);
 	
-	/* draw the Mandelbrot Set, one line at a time.
-	 * Output is sent to file descriptor '1', i.e., standard output.
-	 */
-/*	for (line = 0; line < y_chars; line++) {
-		compute_and_output_mandel_line(1, line);
-	}*/
 
-//	reset_xterm_color(1);
+	reset_xterm_color(1);
 	return 0;
 }
