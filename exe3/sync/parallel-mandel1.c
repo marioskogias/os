@@ -189,22 +189,15 @@ int main(void)
         }
 
         pid = wait(&status);
-        sleep(1);
-        explain_wait_status(pid, status);
+        //explain_wait_status(pid, status);
 
         pid = wait(&status);
-        explain_wait_status(pid, status);
+        //explain_wait_status(pid, status);
 
         pid = wait(&status);
-        explain_wait_status(pid, status);
+        //explain_wait_status(pid, status);
         
-        /* draw the Mandelbrot Set, one line at a time.
-         * Output is sent to file descriptor '1', i.e., standard output.
-         */
-/*      for (line = 0; line < y_chars; line++) {
-                compute_and_output_mandel_line(1, line);
-        }*/
 
-//      reset_xterm_color(1);
+	reset_xterm_color(1);
         return 0;
 }
