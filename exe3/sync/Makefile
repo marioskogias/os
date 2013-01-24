@@ -49,11 +49,11 @@ parallel-mandel2: mandel-lib.o proc-common.o parallel-mandel2.o
 	$(CC) $(CFLAGS) -o parallel-mandel2 mandel-lib.o parallel-mandel2.o proc-common.o 
 
 ## Procs-shm
-procs-shm.o: proc-common.h procs-shm.c
+procs-shm.o: proc-common.h pipesem.h procs-shm.c
 	$(CC) $(CFLAGS) -c -o procs-shm.o procs-shm.c
 
-procs-shm: proc-common.o procs-shm.o
-	$(CC) $(CFLAGS) -o procs-shm proc-common.o procs-shm.o
+procs-shm: proc-common.o procs-shm.o pipesem.o
+	$(CC) $(CFLAGS) -o procs-shm proc-common.o pipesem.o procs-shm.o
 
 clean:
 	rm -f *.o pipesem-test mandel procs-shm parallel-mandel parallel-mandel1 parallel-mandel2

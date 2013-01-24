@@ -29,6 +29,7 @@
 int *shared_memory;
 /* ... */
 struct pipesem sem1;
+struct pipesem mutexAC;
 struct pipesem mutexAB;
 struct pipesem mutexBC;
 
@@ -37,7 +38,7 @@ struct pipesem mutexBC;
 void proc_A(void)
 {
 	volatile int *n = &shared_memory[0];
-      
+        int i;
 	/* ... */
            pipesem_signal(&sem1);
            pipesem_signal(&sem1);
@@ -45,16 +46,19 @@ void proc_A(void)
 
         for (;;) {
  		/* ... */
+//                pipesem_wait(&mutexAC);
+               // pipesem_wait(&mutexAC);
                 pipesem_wait(&sem1);
 
 		/* ... */
-
+                  printf("A ");
 		*n = *n + 1;
 
 		/* ... */
-            
+                if (*n==3) {
                    pipesem_signal(&mutexAB);	
-                	                              
+                   continue;	           
+        	}  // else pipesem_signal(&mutexAC) ;                  
                 /* ... */
 
 	}
@@ -72,7 +76,7 @@ void proc_B(void)
 	for (;;) {
 
                 /* ... */
-                    pipesem_wait(&mutexAB);
+ 		   // pipesem_wait(&mutexAB);
                     pipesem_wait(&mutexAB);   
          	/* ... */
 
@@ -108,6 +112,9 @@ void proc_C(void)
  		/* ... */
                  for(i=0; i<2; i++) 
  	 	   pipesem_signal(&sem1);
+  //               pipesem_signal(&mutexAC);
+    //             pipesem_signal(&mutexAC);
+         //        pipesem_signal(&mutexAC); 
 		/* ... */
 
 	}
@@ -128,6 +135,7 @@ int main(void)
 	pid_t p;
 	proc_fn_t *proc_fn;
         pipesem_init(&sem1, 0);
+        pipesem_init(&mutexAC,1);
         pipesem_init(&mutexAB,0);
         pipesem_init(&mutexBC,0);
 	/* ... */
