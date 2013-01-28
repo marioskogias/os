@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
 #include "queue.h"
 
 struct node {
-	int val;
+	pid_t val;
 	struct node * pre;
 };
 
@@ -22,7 +23,12 @@ struct queue * init_queue() {
 	return q;	
 }
 
-int dequeue(struct queue * q) {
+pid_t get_top(struct queue * q) {
+
+	return q->head->val;
+
+}
+pid_t dequeue(struct queue * q) {
 	struct node * temp ;
 	int val;
 	temp = q->head;
@@ -41,7 +47,7 @@ int dequeue(struct queue * q) {
 	return val;
 }
 
-void enqueue(int pro, struct queue * q) {
+void enqueue(pid_t pro, struct queue * q) {
 	struct node * new = malloc(sizeof(struct node));
 	new->val = pro;
 	new->pre = NULL;

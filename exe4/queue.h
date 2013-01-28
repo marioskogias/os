@@ -5,9 +5,11 @@ typedef struct queue queue;
 
 queue * init_queue() ;
 
-int dequeue(queue * q);
+pid_t dequeue(queue * q);
 
-void enqueue(int pro,queue * q);
+pid_t get_top(queue *q);
+
+void enqueue(pid_t pro,queue * q);
 
 #endif /* REQUEST_H_ */
 

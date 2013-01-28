@@ -10,8 +10,8 @@ CFLAGS = -Wall -O2 -g
 
 all: scheduler scheduler-shell shell prog execve-example strace-test sigchld-example 
 
-scheduler: scheduler.o proc-common.o
-	$(CC) -o scheduler scheduler.o proc-common.o
+scheduler: scheduler.o proc-common.o queue.o
+	$(CC) -o scheduler scheduler.o proc-common.o queue.o
 
 scheduler-shell: scheduler-shell.o proc-common.o
 	$(CC) -o scheduler-shell scheduler-shell.o proc-common.o
@@ -30,6 +30,9 @@ strace-test: strace-test.o
 
 sigchld-example: sigchld-example.o proc-common.o
 	$(CC) -o sigchld-example sigchld-example.o proc-common.o
+
+queue.o: queue.c queue.h
+	$(CC) $(CFLAGS) -o queue.o -c queue.c
 
 proc-common.o: proc-common.c proc-common.h
 	$(CC) $(CFLAGS) -o proc-common.o -c proc-common.c
