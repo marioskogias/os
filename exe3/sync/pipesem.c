@@ -15,20 +15,19 @@ void pipesem_init(struct pipesem *sem, int val)
 {
 	int temp[2];
 	if (pipe(temp) < 0) {
-                perror("pipe");
+		perror("pipe");
 		exit(1);
-        }
+	}
 	sem->rfd = temp[0];
 	sem->wfd = temp[1];
-	
-	int * cookies = malloc(val*sizeof(int));
+
 	int i;
+	int cookie = 1;
 	for (i=0;i<val;i++) 
-		*(i+cookies) = 1;
-	 if (write(sem->wfd, cookies, val*sizeof(int)) != (val*sizeof(int))) {
-                perror("parent: write to pipe");
-                exit(1);
-        }
+		if (write(sem->wfd, &cookie, sizeof(int)) != (sizeof(int))) {
+			perror("parent: write to pipe");
+			exit(1);
+		}
 	//assert( 0 && "I am empty! please fill me!");
 }
 
