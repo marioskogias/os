@@ -12,6 +12,7 @@
 #include "proc-common.h"
 #include "request.h"
 #include "queue.h"
+#include "process.h"
 /* Compile-time parameters. */
 #define SCHED_TQ_SEC 2                /* time quantum */
 #define TASK_NAME_SZ 60               /* maximum size for a task's name */
@@ -24,10 +25,9 @@ queue * q;
  */
 static void
 sigalrm_handler(int signum){
-	pid_t p;
-	p = get_top(q);
-	kill(p,SIGSTOP);
-	printf("in alarm handler\n");	
+	struct process * proc;
+	proc = get_top(q);
+	kill(proc->pid,SIGSTOP);
 	
 	 if (alarm(SCHED_TQ_SEC) < 0) {
                 perror("alarm");
@@ -48,28 +48,34 @@ sigchld_handler(int signum){
                 exit(1);
         }
 	
-	pid_t p1,p2;
+	struct process *  p;
+	pid_t pid;
 	int status;
 	for (;;) {
-                p1 = waitpid(-1, &status, WUNTRACED | WNOHANG);
-                if (p1 < 0) {
+                pid = waitpid(-1, &status, WUNTRACED | WNOHANG);
+                if (pid < 0) {
                         perror("waitpid");
                         exit(1);
                 }
-                if (p1 == 0)
+                if (pid == 0)
                         break;
 
-                explain_wait_status(p1, status);
+                explain_wait_status(pid, status);
 
                 if (WIFEXITED(status) || WIFSIGNALED(status)) {
                         /* A child has died */
-                        printf("Parent: Received SIGCHLD, child is dead.\n");
-			p2 = get_top(q);
-			if (p1!=p2)
-				delete(p1,q);
+                        printf("Parent: Received SIGCHLD, child  %s is dead.\n", name_by_pid(pid,q));
+			p = get_top(q);
+			if (pid != p->pid){
+				printf("i'll call delete\n");
+				delete(pid,q);
+				printf("after delete\n");
+			}
 			else {
 				dequeue(q);
-				kill(get_top(q),SIGCONT);
+				p = get_top(q);
+				printf("starting process %s\n",p->name);
+				kill(p->pid,SIGCONT);
 
 				if (alarm(SCHED_TQ_SEC) < 0) { // reset timer
 					perror("alarm");
@@ -80,10 +86,11 @@ sigchld_handler(int signum){
 		if (WIFSTOPPED(status)) {
 			/* A child has stopped due to SIGSTOP/SIGTSTP, etc... */
 			printf("Parent: Child has been stopped. Moving right along...\n");
-			p1 = dequeue(q);
-			enqueue(p1,q);
-			p1 = get_top(q);
-			kill(p1,SIGCONT);
+			p = dequeue(q);
+			enqueue(p,q);
+			p = get_top(q);
+			printf("starting process %s\n",p->name);
+			kill(p->pid,SIGCONT);
 		}
         }
 	//assert(0 && "Please fill me!");
@@ -140,6 +147,7 @@ int main(int argc, char *argv[])
 	int i;
 	pid_t p;
 	q = init_queue();
+	struct process * proc;
 	for (i=1;i<argc;i++) {
 		p = fork();
 		if (p < 0) {
@@ -154,8 +162,10 @@ int main(int argc, char *argv[])
 			execve(argv[i],newargv,newenviron);
 			exit(1);
 		}
-		
-		enqueue(p,q);
+		proc = malloc(sizeof(struct process));
+		proc->pid = p;
+		proc->name = argv[i];
+		enqueue(proc,q);
 		
 	}	
 
@@ -187,8 +197,8 @@ int main(int argc, char *argv[])
 
 
 	/*start the process*/
-	p = get_top(q);
-	kill(p,SIGCONT);
+	proc= get_top(q);
+	kill(proc->pid,SIGCONT);
 
 	if (nproc == 0) {
 		fprintf(stderr, "Scheduler: No tasks. Exiting...\n");

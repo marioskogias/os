@@ -3,9 +3,10 @@
 #include <sys/types.h>
 
 #include "queue.h"
+#include "process.h"
 
 struct node {
-	pid_t val;
+	struct process * p;
 	struct node * pre;
 };
 
@@ -24,30 +25,27 @@ struct queue * init_queue() {
 }
 
 void delete(pid_t p,struct queue *q) {
-
 	struct node * temp = q->head;
-	struct node * pre = NULL;
-	while (temp->val != p) {
-	
-		pre = temp;
+	struct node * pt = NULL;
+	while (temp->p->pid != p) {
+		pt = temp;
 		temp = temp->pre;
 
 	}
 	
-	pre->pre = temp->pre;
+		
+	pt->pre = temp->pre;
 	free(temp);
 
 }
-pid_t get_top(struct queue * q) {
+struct process * get_top(struct queue * q) {
 
-	return q->head->val;
+	return q->head->p;
 
 }
-pid_t dequeue(struct queue * q) {
+struct process * dequeue(struct queue * q) {
 	struct node * temp ;
-	int val;
 	temp = q->head;
-	val = q->head->val;
 	q->size--;
 
 	if (q->size == 0) {
@@ -57,16 +55,15 @@ pid_t dequeue(struct queue * q) {
 		q->head = temp->pre;	
 	}
 	
-	free(temp);
 		
-	return val;
+	return temp->p;
 }
 
-void enqueue(pid_t pro, struct queue * q) {
-	struct node * new = malloc(sizeof(struct node));
-	new->val = pro;
-	new->pre = NULL;
+void enqueue(struct process * p, struct queue * q) {
 	
+	struct node * new = malloc(sizeof(struct node));
+	new->p = p;
+	new->pre = NULL;
 	if (q->size == 0) {
 		q->head = new;
 		q->tail = new;
@@ -77,4 +74,13 @@ void enqueue(pid_t pro, struct queue * q) {
 	q->size++;
 }	
 
+char * name_by_pid(pid_t p, queue * q) {
+	
+	struct node * t = q->head;
+	while(t->p->pid != p)
+		t = t->pre;
 
+	return t->p->name;
+
+
+}

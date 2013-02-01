@@ -5,13 +5,16 @@ typedef struct queue queue;
 
 queue * init_queue() ;
 
-pid_t dequeue(queue * q);
+struct process * dequeue(queue * q);
 
-pid_t get_top(queue *q);
+struct process * get_top(queue *q);
 
-void enqueue(pid_t pro,queue * q);
+void enqueue(struct process *,queue * q);
 
 void delete(pid_t p, queue * q);
+
+char * name_by_pid(pid_t p,queue * q);
+
 #endif /* REQUEST_H_ */
 
 
