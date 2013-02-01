@@ -11,6 +11,7 @@ pid_t get_top(queue *q);
 
 void enqueue(pid_t pro,queue * q);
 
+void delete(pid_t p, queue * q);
 #endif /* REQUEST_H_ */
 
 

@@ -23,6 +23,21 @@ struct queue * init_queue() {
 	return q;	
 }
 
+void delete(pid_t p,struct queue *q) {
+
+	struct node * temp = q->head;
+	struct node * pre = NULL;
+	while (temp->val != p) {
+	
+		pre = temp;
+		temp = temp->pre;
+
+	}
+	
+	pre->pre = temp->pre;
+	free(temp);
+
+}
 pid_t get_top(struct queue * q) {
 
 	return q->head->val;

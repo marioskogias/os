@@ -42,40 +42,48 @@ sigalrm_handler(int signum){
  */
 static void
 sigchld_handler(int signum){
-
 	if (signum != SIGCHLD) {
                 fprintf(stderr, "Internal error: Called for signum %d, not SIGCHLD\n",
                         signum);
                 exit(1);
         }
 	
-	pid_t p;
+	pid_t p1,p2;
 	int status;
 	for (;;) {
-                p = waitpid(-1, &status, WUNTRACED | WNOHANG);
-                if (p < 0) {
+                p1 = waitpid(-1, &status, WUNTRACED | WNOHANG);
+                if (p1 < 0) {
                         perror("waitpid");
                         exit(1);
                 }
-                if (p == 0)
+                if (p1 == 0)
                         break;
 
-                explain_wait_status(p, status);
+                explain_wait_status(p1, status);
 
                 if (WIFEXITED(status) || WIFSIGNALED(status)) {
                         /* A child has died */
                         printf("Parent: Received SIGCHLD, child is dead.\n");
-                        dequeue(q);
-			p = get_top(q);
-			kill(p,SIGCONT);
+			p2 = get_top(q);
+			if (p1!=p2)
+				delete(p1,q);
+			else {
+				dequeue(q);
+				kill(get_top(q),SIGCONT);
+
+				if (alarm(SCHED_TQ_SEC) < 0) { // reset timer
+					perror("alarm");
+					exit(1);
+				}
+			}
 		}
 		if (WIFSTOPPED(status)) {
 			/* A child has stopped due to SIGSTOP/SIGTSTP, etc... */
 			printf("Parent: Child has been stopped. Moving right along...\n");
-			p = dequeue(q);
-			enqueue(p,q);
-			p = get_top(q);
-			kill(p,SIGCONT);
+			p1 = dequeue(q);
+			enqueue(p1,q);
+			p1 = get_top(q);
+			kill(p1,SIGCONT);
 		}
         }
 	//assert(0 && "Please fill me!");
