@@ -180,16 +180,16 @@ int main(int argc, char *argv[])
 	install_signal_handlers();
 
 	/* Install SIGCHLD handler */
-        if (signal(SIGCHLD, sigchld_handler) < 0) {
+ /*       if (signal(SIGCHLD, sigchld_handler) < 0) {
                 perror("signal");
                 exit(1);
-        }
+        } */
 
         /* Install SIGALRM handler */
-        if (signal(SIGALRM, sigalrm_handler) < 0) {
+      /*  if (signal(SIGALRM, sigalrm_handler) < 0) {
                 perror("signal");
                 exit(1);
-        }
+        } */
 
         /* Arrange for an alarm after 1 sec */
         if (alarm(SCHED_TQ_SEC) < 0) {
