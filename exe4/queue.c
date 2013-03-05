@@ -35,12 +35,16 @@ void delete(pid_t p,struct queue *q) {
 	
 		
 	pt->pre = temp->pre;
+	printf("deleting %d\n",temp->p->pid);
 	free(temp);
+	q->size--;
 
 }
 struct process * get_top(struct queue * q) {
-
-	return q->head->p;
+	if (q->head == NULL) 
+		return NULL;
+	else  
+		return q->head->p;
 
 }
 struct process * dequeue(struct queue * q) {

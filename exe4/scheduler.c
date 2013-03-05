@@ -8,7 +8,6 @@
 
 #include <sys/wait.h>
 #include <sys/types.h>
-
 #include "proc-common.h"
 #include "request.h"
 #include "queue.h"
@@ -70,10 +69,17 @@ sigchld_handler(int signum){
 				printf("i'll call delete\n");
 				delete(pid,q);
 				printf("after delete\n");
+				p = get_top(q);
+				printf("%d",p->pid);
 			}
 			else {
 				dequeue(q);
 				p = get_top(q);
+				if (p == NULL ) {
+					printf("No more process\n");
+					exit(1);
+
+				}
 				printf("starting process %s\n",p->name);
 				kill(p->pid,SIGCONT);
 
@@ -82,17 +88,24 @@ sigchld_handler(int signum){
 					exit(1);
 				}
 			}
-			break;
+	//		break;
 		}
 		if (WIFSTOPPED(status)) {
 			/* A child has stopped due to SIGSTOP/SIGTSTP, etc... */
 			printf("Parent: Child has been stopped. Moving right along...\n");
 			p = dequeue(q);
+			printf("after");
+			if (p == NULL ) {
+				printf("No more process\n");
+				exit(1);
+				
+			}
 			enqueue(p,q);
 			p = get_top(q);
+			if (p == NULL) break;
 			printf("starting process %s\n",p->name);
 			kill(p->pid,SIGCONT);	
-			break;
+	//		break;
 		}
         }
 	//assert(0 && "Please fill me!");
@@ -178,18 +191,6 @@ int main(int argc, char *argv[])
 
 	/* Install SIGALRM and SIGCHLD handlers. */
 	install_signal_handlers();
-
-	/* Install SIGCHLD handler */
- /*       if (signal(SIGCHLD, sigchld_handler) < 0) {
-                perror("signal");
-                exit(1);
-        } */
-
-        /* Install SIGALRM handler */
-      /*  if (signal(SIGALRM, sigalrm_handler) < 0) {
-                perror("signal");
-                exit(1);
-        } */
 
         /* Arrange for an alarm after 1 sec */
         if (alarm(SCHED_TQ_SEC) < 0) {
