@@ -82,6 +82,7 @@ sigchld_handler(int signum){
 					exit(1);
 				}
 			}
+			break;
 		}
 		if (WIFSTOPPED(status)) {
 			/* A child has stopped due to SIGSTOP/SIGTSTP, etc... */
@@ -90,7 +91,8 @@ sigchld_handler(int signum){
 			enqueue(p,q);
 			p = get_top(q);
 			printf("starting process %s\n",p->name);
-			kill(p->pid,SIGCONT);
+			kill(p->pid,SIGCONT);	
+			break;
 		}
         }
 	//assert(0 && "Please fill me!");
